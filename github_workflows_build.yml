@@ -1,0 +1,29 @@
+name: build-and-push-docker
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'ai_agent_af_dashboard.py'
+      - 'requirements.txt'
+      - 'Dockerfile'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/af-agent-dashboard:latest
